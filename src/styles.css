@@ -263,6 +263,68 @@
   animation: losscope-scan 2.2s ease-in-out infinite;
 }
 
+@keyframes losscope-home-intro-shell {
+  0%,
+  72% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-18px);
+  }
+}
+
+@keyframes losscope-home-intro-icon {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  28%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes losscope-home-intro-copy {
+  0%,
+  34% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  56%,
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.losscope-home-intro {
+  pointer-events: none;
+  animation: losscope-home-intro-shell 1.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.losscope-home-intro-mark {
+  transform: translateY(-2vh);
+}
+
+.losscope-home-intro-icon {
+  animation: losscope-home-intro-icon 1.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.losscope-home-intro-copy {
+  animation: losscope-home-intro-copy 1.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .losscope-home-intro,
+  .losscope-home-intro-icon,
+  .losscope-home-intro-copy {
+    animation-duration: 1ms;
+  }
+}
+
 /* Smooth theme transition */
 html.theme-transitioning,
 html.theme-transitioning *,

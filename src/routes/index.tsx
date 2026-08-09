@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, Scan, TrendingDown, Sparkles, ShieldCheck } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { generateUrbanBiteData } from "@/lib/losscope/data";
 import { analyze, inr } from "@/lib/losscope/engine";
 import { losscopeStore } from "@/lib/losscope/store";
@@ -25,9 +25,23 @@ export const Route = createFileRoute("/")({
   component: Landing,
 });
 
+let hasShownLandingIntro = false;
+
 function Landing() {
   const navigate = useNavigate();
   const preview = useMemo(() => analyze(generateUrbanBiteData(), "UrbanBite Cafe"), []);
+  const [showIntro, setShowIntro] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (media.matches || hasShownLandingIntro) return;
+
+    hasShownLandingIntro = true;
+    setShowIntro(true);
+
+    const timer = window.setTimeout(() => setShowIntro(false), 1800);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   const startDemo = () => {
     losscopeStore.loadDemo();
@@ -36,6 +50,8 @@ function Landing() {
 
   return (
     <div className="min-h-screen bg-background">
+      {showIntro ? <LandingIntro /> : null}
+
       <header className="border-b border-border">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
           <div className="flex items-center gap-2">
@@ -155,6 +171,25 @@ function Landing() {
           ))}
         </div>
       </section>
+    </div>
+  );
+}
+
+function LandingIntro() {
+  return (
+    <div
+      className="losscope-home-intro fixed inset-0 z-50 grid place-items-center bg-background"
+      aria-hidden="true"
+    >
+      <div className="losscope-home-intro-mark flex flex-col items-center gap-4 text-center">
+        <span className="losscope-home-intro-icon flex size-16 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lift">
+          <Scan className="size-8" />
+        </span>
+        <div className="losscope-home-intro-copy">
+          <div className="font-display text-xl font-semibold tracking-wide">LOSSCOPE AI</div>
+          <div className="mt-2 text-sm text-muted-foreground">Find the losses you don&apos;t see.</div>
+        </div>
+      </div>
     </div>
   );
 }
