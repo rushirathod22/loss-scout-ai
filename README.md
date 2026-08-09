@@ -65,7 +65,11 @@ Every single finding flagged by Losscope AI is backed by an auditable 6-field st
 
 Losscope AI runs **100% dynamic calculations** from uploaded CSV data. It does **NOT** rely on hardcoded static outputs.
 
-Below is the verified audit comparison across two completely distinct 30-day business datasets:
+You can inspect and test the exact 30-day operational sample datasets included directly in this repository:
+- 📄 **[Dataset 1: Realistic Demo (sample_data/urbanbite_cafe_30_days_realistic_demo.csv)](sample_data/urbanbite_cafe_30_days_realistic_demo.csv)**
+- 📄 **[Dataset 2: Stress Test (sample_data/urbanbite_cafe_30_days_stress_test.csv)](sample_data/urbanbite_cafe_30_days_stress_test.csv)**
+
+Below is the verified audit comparison across both datasets:
 
 | Financial Metric | Dataset 1 (Realistic UrbanBite) | Dataset 2 (Stress Test) | Status |
 | :--- | :---: | :---: | :---: |
