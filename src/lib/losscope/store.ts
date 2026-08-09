@@ -24,7 +24,7 @@ let state: State = {
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((l) => l());
 
-const KEY = "losscope:v1";
+const KEY = "losscope:v2";
 
 function set(patch: Partial<State>) {
   state = { ...state, ...patch };

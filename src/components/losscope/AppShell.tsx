@@ -2,6 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { Scan, LayoutDashboard, Activity, ListChecks, FileText, Upload } from "lucide-react";
 import { useEffect, type ReactNode } from "react";
 import { hydrateLosscope, useLosscope } from "@/lib/losscope/store";
+import { ThemeToggle } from "./ThemeToggle";
 
 const NAV = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -55,6 +56,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </nav>
 
           <div className="ml-auto flex items-center gap-3">
+            <ThemeToggle />
             <Link
               to="/upload"
               className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"

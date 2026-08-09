@@ -14,10 +14,28 @@ import {
   YAxis,
   ZAxis,
 } from "recharts";
+import { AlertCircle } from "lucide-react";
 import { AppShell } from "@/components/losscope/AppShell";
 import { ConfidenceMeter, Kpi, NoData, SeverityBadge } from "@/components/losscope/ui";
 import { inr } from "@/lib/losscope/engine";
 import { useLosscope } from "@/lib/losscope/store";
+import type { LossType } from "@/lib/losscope/types";
+
+function LossTypeBadge({ lossType }: { lossType: LossType }) {
+  const config = {
+    "Directly Measured Loss": { label: "🔴 Directly Measured", style: { background: "rgba(239,68,68,0.12)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.3)" } },
+    "Estimated Operational Cost": { label: "🟡 Operational Cost", style: { background: "rgba(234,179,8,0.12)", color: "#ca8a04", border: "1px solid rgba(234,179,8,0.3)" } },
+    "Capital at Risk": { label: "🟠 Capital at Risk", style: { background: "rgba(249,115,22,0.12)", color: "#f97316", border: "1px solid rgba(249,115,22,0.3)" } },
+    "Revenue Exposure": { label: "🔵 Revenue Exposure", style: { background: "rgba(59,130,246,0.12)", color: "#3b82f6", border: "1px solid rgba(59,130,246,0.3)" } },
+  }[lossType];
+  return (
+    <span
+      style={{ ...config.style, borderRadius: 6, padding: "2px 8px", fontSize: 11, fontWeight: 600, whiteSpace: "nowrap" }}
+    >
+      {config.label}
+    </span>
+  );
+}
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -26,12 +44,12 @@ export const Route = createFileRoute("/dashboard")({
       {
         name: "description",
         content:
-          "Ranked view of where UrbanBite Cafe is silently losing money: invisible loss, potential recovery, loss score and the evidence behind each pattern.",
+          "Operational analysis dashboard: directly measured losses, estimated operational costs, capital at risk, and auditable 6-field evidence.",
       },
       { property: "og:title", content: "Loss Dashboard — Losscope AI" },
       {
         property: "og:description",
-        content: "Invisible loss, potential recovery, loss score and ranked loss patterns with evidence.",
+        content: "Transparent 6-field auditable findings with explicit financial classification.",
       },
     ],
   }),
@@ -62,6 +80,8 @@ function Dashboard() {
     );
   }
 
+  const combinedCost = result.totalDirectlyMeasured + result.totalEstimatedOperationalCost;
+
   const matrixData = result.losses.map((l) => ({
     x: l.effort,
     y: l.impact,
@@ -74,25 +94,23 @@ function Dashboard() {
       <div className="rise">
         <h1 className="font-display text-3xl font-semibold">Good morning, UrbanBite 👋</h1>
         <p className="mt-2 text-muted-foreground">
-          Here&apos;s what your operations are silently costing you.
+          Operational analysis split into transparent financial categories.
         </p>
       </div>
 
+      {/* Honest KPI Overview Row */}
       <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Kpi label="Invisible loss" value={`${inr(result.totalLoss)}/mo`} tone="loss" sub="Estimated, avoidable" />
-        <Kpi
-          label="Potential recovery"
-          value={`${inr(result.totalRecovery)}/mo`}
-          tone="gain"
-          sub={`${Math.round((result.totalRecovery / result.totalLoss) * 100)}% estimated recovery rate`}
-        />
-        <Kpi label="Losses detected" value={`${result.losses.length}`} sub={`${result.rowCount} rows analysed`} />
-        <Kpi
-          label="Analysis confidence"
-          value={`${result.confidence}%`}
-          tone="info"
-          sub={`Data completeness ${result.dataQuality}%`}
-        />
+        <Kpi label="Period Revenue" value={inr(result.totalRevenue)} tone="info" sub={`Actual ${result.dayCount}-day sales sum`} />
+        <Kpi label="Directly Measured" value={inr(result.totalDirectlyMeasured)} tone="loss" sub="Confirmed direct waste loss" />
+        <Kpi label="Est. Operational Cost" value={inr(result.totalEstimatedOperationalCost)} tone="warn" sub={`Delivery (${inr(result.totalDeliveryInefficiency)}) + Payment (${inr(result.totalCashFlowRisk)})`} />
+        <Kpi label="Combined Measured + Est." value={inr(combinedCost)} tone="loss" sub="Waste + Operational Inefficiencies" />
+      </div>
+
+      <div className="mt-4 flex items-center gap-2 rounded-lg bg-accent/40 px-4 py-2 text-xs text-muted-foreground">
+        <AlertCircle className="size-4 shrink-0 text-primary" />
+        <span>
+          Capital at risk ({inr(result.totalCapitalAtRisk)}) and revenue exposure ({inr(result.totalDemandExposure)}) are intentionally excluded from this total to avoid double counting.
+        </span>
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[320px_1fr]">
@@ -119,19 +137,45 @@ function Dashboard() {
               </div>
             ))}
           </div>
+
+          {/* Potential Recovery Categories Breakdown (Separated cleanly) */}
+          <div className="mt-6 border-t border-border pt-4">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Recovery Opportunities
+            </h3>
+            <dl className="mt-3 space-y-2 text-xs">
+              <div className="flex justify-between">
+                <dt className="text-muted-foreground">Potential Waste Recovery</dt>
+                <dd className="num font-semibold text-gain">{inr(result.potentialWasteRecovery)}</dd>
+              </div>
+              <div className="flex justify-between">
+                <dt className="text-muted-foreground">Estimated Operational Cost Reduction</dt>
+                <dd className="num font-semibold text-gain">{inr(result.potentialOperationalCostReduction)}</dd>
+              </div>
+              <div className="flex justify-between">
+                <dt className="text-muted-foreground">Potential Revenue Recovery</dt>
+                <dd className="num font-semibold text-blue-500">{inr(result.potentialRevenueRecovery)}</dd>
+              </div>
+              <div className="flex justify-between">
+                <dt className="text-muted-foreground">Inventory Optimization Opportunity</dt>
+                <dd className="num font-semibold text-orange-500">{inr(result.potentialInventoryOptimization)}</dd>
+              </div>
+            </dl>
+          </div>
         </section>
 
         <section>
-          <h2 className="font-display text-lg font-semibold">Where you&apos;re losing money</h2>
-          <div className="mt-4 space-y-3">
+          <h2 className="font-display text-lg font-semibold">Operational Analysis Findings</h2>
+          <div className="mt-4 space-y-4">
             {result.losses.map((l, i) => (
               <article key={l.id} className="panel p-5">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <span className="num text-xs text-muted-foreground">#{i + 1}</span>
                       <h3 className="font-display text-base font-semibold">{l.category}</h3>
                       <SeverityBadge severity={l.severity} />
+                      <LossTypeBadge lossType={l.lossType} />
                     </div>
                     <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">{l.summary}</p>
                   </div>
@@ -142,12 +186,39 @@ function Dashboard() {
                     <div className="text-xs text-muted-foreground">{l.period}</div>
                   </div>
                 </div>
+
+                {/* 6-Field Standard Auditable Block */}
+                <div className="mt-4 grid gap-2 rounded-lg bg-surface p-3.5 text-xs border border-border">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div>
+                      <span className="font-semibold text-muted-foreground">TYPE: </span>
+                      <span className="font-medium text-foreground">{l.lossType}</span>
+                    </div>
+                    <div>
+                      <span className="font-semibold text-muted-foreground">ESTIMATED IMPACT: </span>
+                      <span className="font-bold text-loss">{inr(l.estimated_loss)}</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <span className="font-semibold text-muted-foreground">RAW VALUE: </span>
+                    <span className="font-medium text-foreground">{l.raw_value_text}</span>
+                  </div>
+
+                  <div>
+                    <span className="font-semibold text-muted-foreground">FORMULA: </span>
+                    <code className="rounded bg-muted px-1.5 py-0.5 text-[11px] font-mono text-foreground">
+                      {l.formulaText}
+                    </code>
+                  </div>
+                </div>
+
                 <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
                   <div className="w-56">
                     <ConfidenceMeter value={l.confidence} />
                   </div>
-                  <div className="text-xs text-gain">
-                    Estimated potential recovery {inr(l.potential_saving)}/mo
+                  <div className="text-xs text-gain font-medium">
+                    Est. potential recovery: {inr(l.potential_saving)}
                   </div>
                   <Link
                     to="/losses/$lossId"
@@ -164,19 +235,19 @@ function Dashboard() {
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <ChartCard title="Estimated loss over time" hint="Daily avoidable cost across all detectors">
+        <ChartCard title="Daily Estimated Operational Cost" hint="Daily waste write-offs + delivery excess + payment financing cost">
           <ResponsiveContainer width="100%" height={240}>
             <LineChart data={result.charts.lossOverTime}>
               <CartesianGrid stroke={chartTheme.grid} vertical={false} />
               <XAxis dataKey="label" stroke={chartTheme.axis} fontSize={11} tickMargin={8} />
               <YAxis stroke={chartTheme.axis} fontSize={11} width={54} />
               <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => inr(v)} />
-              <Line type="monotone" dataKey="loss" name="Estimated loss" stroke="var(--color-loss)" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="loss" name="Daily Operational Cost" stroke="var(--color-loss)" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Waste cost by product" hint="Monthly write-off value">
+        <ChartCard title="Waste cost by product" hint="Direct waste write-off value (quantity × cost)">
           <ResponsiveContainer width="100%" height={240}>
             <BarChart data={result.charts.wasteByProduct}>
               <CartesianGrid stroke={chartTheme.grid} vertical={false} />

@@ -6,9 +6,11 @@
 
 /*
  * LOSSCOPE AI — design system.
- * Single dark analytical theme. Semantic tokens only; never hardcode colors
- * in components. Money semantics: loss = red, gain = green, warn = amber,
- * info = blue.
+ * Dual theme: light (default) + dark. Semantic tokens only; never hardcode
+ * colors in components. Money semantics: loss = red, gain = green,
+ * warn = amber, info = blue.
+ *
+ * Theme is toggled by adding/removing `.dark` on <html>.
  */
 
 @theme inline {
@@ -67,12 +69,71 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  --shadow-panel: 0 1px 0 0 oklch(1 0 0 / 6%) inset, 0 18px 40px -24px oklch(0 0 0 / 80%);
-  --shadow-lift: 0 24px 60px -30px oklch(0 0 0 / 90%);
+  --shadow-panel: var(--panel-shadow);
+  --shadow-lift: var(--lift-shadow);
 }
 
+/* ========== LIGHT THEME (default) ========== */
 :root {
   --radius: 0.875rem;
+
+  --background: oklch(0.985 0.002 250);
+  --foreground: oklch(0.145 0.015 254);
+  --surface: oklch(0.965 0.003 250);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0.015 254);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0.015 254);
+
+  --primary: oklch(0.52 0.14 176);
+  --primary-foreground: oklch(0.98 0.005 250);
+
+  --secondary: oklch(0.94 0.006 250);
+  --secondary-foreground: oklch(0.2 0.02 254);
+
+  --muted: oklch(0.94 0.006 250);
+  --muted-foreground: oklch(0.46 0.02 254);
+
+  --accent: oklch(0.94 0.012 250);
+  --accent-foreground: oklch(0.18 0.02 254);
+
+  --destructive: oklch(0.55 0.2 22);
+  --destructive-foreground: oklch(0.98 0.005 250);
+
+  --loss: oklch(0.55 0.22 25);
+  --loss-soft: oklch(0.55 0.22 25 / 10%);
+  --gain: oklch(0.45 0.16 158);
+  --gain-soft: oklch(0.45 0.16 158 / 10%);
+  --warn: oklch(0.6 0.18 60);
+  --warn-soft: oklch(0.6 0.18 60 / 10%);
+  --info: oklch(0.5 0.14 240);
+  --info-soft: oklch(0.5 0.14 240 / 10%);
+
+  --border: oklch(0 0 0 / 10%);
+  --input: oklch(0 0 0 / 12%);
+  --ring: oklch(0.52 0.14 176 / 40%);
+
+  --chart-1: oklch(0.55 0.22 25);
+  --chart-2: oklch(0.52 0.14 176);
+  --chart-3: oklch(0.6 0.18 60);
+  --chart-4: oklch(0.5 0.14 240);
+  --chart-5: oklch(0.45 0.16 158);
+
+  --sidebar: oklch(0.97 0.003 250);
+  --sidebar-foreground: oklch(0.2 0.02 254);
+  --sidebar-primary: oklch(0.52 0.14 176);
+  --sidebar-primary-foreground: oklch(0.98 0.005 250);
+  --sidebar-accent: oklch(0.94 0.006 250);
+  --sidebar-accent-foreground: oklch(0.18 0.02 254);
+  --sidebar-border: oklch(0 0 0 / 10%);
+  --sidebar-ring: oklch(0.52 0.14 176 / 40%);
+
+  --panel-shadow: 0 1px 3px 0 oklch(0 0 0 / 8%), 0 1px 2px -1px oklch(0 0 0 / 6%);
+  --lift-shadow: 0 10px 30px -10px oklch(0 0 0 / 12%);
+}
+
+/* ========== DARK THEME ========== */
+.dark {
   --background: oklch(0.168 0.017 254);
   --foreground: oklch(0.972 0.005 250);
   --surface: oklch(0.198 0.018 254);
@@ -80,14 +141,19 @@
   --card-foreground: oklch(0.972 0.005 250);
   --popover: oklch(0.214 0.019 254);
   --popover-foreground: oklch(0.972 0.005 250);
+
   --primary: oklch(0.79 0.135 176);
   --primary-foreground: oklch(0.18 0.03 200);
+
   --secondary: oklch(0.27 0.02 254);
   --secondary-foreground: oklch(0.95 0.005 250);
+
   --muted: oklch(0.26 0.019 254);
   --muted-foreground: oklch(0.7 0.018 254);
+
   --accent: oklch(0.3 0.03 254);
   --accent-foreground: oklch(0.97 0.005 250);
+
   --destructive: oklch(0.63 0.2 22);
   --destructive-foreground: oklch(0.98 0.005 250);
 
@@ -118,6 +184,9 @@
   --sidebar-accent-foreground: oklch(0.97 0.005 250);
   --sidebar-border: oklch(1 0 0 / 9%);
   --sidebar-ring: oklch(0.79 0.135 176 / 60%);
+
+  --panel-shadow: 0 1px 0 0 oklch(1 0 0 / 6%) inset, 0 18px 40px -24px oklch(0 0 0 / 80%);
+  --lift-shadow: 0 24px 60px -30px oklch(0 0 0 / 90%);
 }
 
 @layer base {
@@ -150,9 +219,15 @@
 
 @utility grid-backdrop {
   background-image:
+    linear-gradient(to right, oklch(0.5 0 0 / 6%) 1px, transparent 1px),
+    linear-gradient(to bottom, oklch(0.5 0 0 / 6%) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+.dark .grid-backdrop {
+  background-image:
     linear-gradient(to right, oklch(1 0 0 / 4%) 1px, transparent 1px),
     linear-gradient(to bottom, oklch(1 0 0 / 4%) 1px, transparent 1px);
-  background-size: 64px 64px;
 }
 
 @utility num {
@@ -186,4 +261,12 @@
 
 @utility scanline {
   animation: losscope-scan 2.2s ease-in-out infinite;
+}
+
+/* Smooth theme transition */
+html.theme-transitioning,
+html.theme-transitioning *,
+html.theme-transitioning *::before,
+html.theme-transitioning *::after {
+  transition: background-color 0.3s ease, color 0.15s ease, border-color 0.3s ease, box-shadow 0.3s ease !important;
 }

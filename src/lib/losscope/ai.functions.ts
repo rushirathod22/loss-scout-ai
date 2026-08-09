@@ -33,27 +33,23 @@ Prioritize recurring patterns over isolated anomalies. Distinguish between corre
 For every recommendation explain: 1. What should change 2. Why 3. Evidence 4. Expected impact 5. Confidence.
 If evidence is insufficient, explicitly state that more data is required.
 Currency is Indian Rupees (₹). Use "estimated potential recovery", never guaranteed savings.
-Your output must be valid JSON matching the requested schema.`;
 
-const RESPONSE_SCHEMA = {
-  type: "object",
-  additionalProperties: false,
-  required: ["executive_summary", "top_loss", "root_causes", "insights", "recommendations", "priority_actions"],
-  properties: {
-    executive_summary: { type: "string" },
-    top_loss: { type: "string" },
-    root_causes: { type: "array", items: { type: "string" } },
-    insights: { type: "array", items: { type: "string" } },
-    recommendations: { type: "array", items: { type: "string" } },
-    priority_actions: { type: "array", items: { type: "string" } },
-  },
-} as const;
+IMPORTANT: You MUST respond with ONLY a valid JSON object — no markdown, no explanation, no code fences.
+The JSON must have exactly these keys:
+{
+  "executive_summary": "string",
+  "top_loss": "string",
+  "root_causes": ["string"],
+  "insights": ["string"],
+  "recommendations": ["string"],
+  "priority_actions": ["string"]
+}`;
 
-function fallback(f: Findings) {
+function fallback(f: Findings, note?: string) {
   const top = f.losses[0];
   return {
-    executive_summary: `${f.narrative} Across ${f.losses.length} detected patterns the estimated invisible loss is ₹${Math.round(f.totalLoss).toLocaleString("en-IN")} per month, with an estimated potential recovery of ₹${Math.round(f.totalRecovery).toLocaleString("en-IN")} at ${f.confidence}% weighted confidence.`,
-    top_loss: top ? `${top.category}: ₹${Math.round(top.estimated_loss).toLocaleString("en-IN")}/month — ${top.title}` : "No material loss detected.",
+    executive_summary: f.narrative,
+    top_loss: top ? `${top.category}: ₹${Math.round(top.estimated_loss).toLocaleString("en-IN")} — ${top.title}` : "No material loss detected.",
     root_causes: f.losses.map((l) => `${l.category}: ${l.root_cause}`),
     insights: f.losses.flatMap((l) => l.evidence.slice(0, 2).map((e) => `${l.category} — ${e.label}: ${e.value}`)),
     recommendations: f.losses.map((l) => l.recommendation),
@@ -61,61 +57,68 @@ function fallback(f: Findings) {
       .slice(0, 3)
       .map((l, i) => `${i + 1}. ${l.recommendation} (estimated potential recovery ₹${Math.round(l.potential_saving).toLocaleString("en-IN")}/month)`),
     source: "fallback" as const,
-    note: "Generated from the deterministic detector output — the AI narrator was unavailable.",
+    note: note ?? "Generated from the deterministic detector output — the AI narrator was unavailable.",
   };
 }
 
 export const generateInsights = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => findingSchema.parse(data))
+  .validator((data: unknown) => findingSchema.parse(data))
   .handler(async ({ data }) => {
-    const apiKey = process.env["LOVABLE_API_KEY"];
-    if (!apiKey) return fallback(data);
+    const apiKey = process.env["OPENAI_API_KEY"];
+    const baseUrl = process.env["OPENAI_BASE_URL"] ?? "https://api.groq.com/openai/v1";
+
+    if (!apiKey) {
+      return fallback(data, "API key not configured; showing deterministic analysis.");
+    }
 
     try {
-      const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      const response = await fetch(`${baseUrl}/chat/completions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model: "google/gemini-3-flash-preview",
+          model: process.env["OPENAI_MODEL"] ?? "llama-3.1-8b-instant",
           messages: [
             { role: "system", content: SYSTEM_PROMPT },
             {
               role: "user",
-              content: `Structured findings from deterministic Pandas-style analysis of ${data.businessName} (${data.periodLabel}). Only these facts exist — do not add others.\n\n${JSON.stringify(data, null, 2)}`,
+              content: `Analyse this business findings dataset:\n${JSON.stringify(data, null, 2)}`,
             },
           ],
-          response_format: {
-            type: "json_schema",
-            json_schema: { name: "loss_analysis", strict: true, schema: RESPONSE_SCHEMA },
-          },
+          temperature: 0.2,
+          max_tokens: 1000,
         }),
       });
 
-      if (!res.ok) {
-        const detail = await res.text();
-        console.error("AI gateway error", res.status, detail.slice(0, 400));
-        return { ...fallback(data), note: res.status === 429 ? "AI narrator rate-limited — showing the deterministic analysis." : "AI narrator unavailable — showing the deterministic analysis." };
+      if (!response.ok) {
+        const text = await response.text();
+        console.error("OpenAI API error", response.status, text);
+        return fallback(data, `AI service error (${response.status}); falling back to deterministic analysis.`);
       }
 
-      const json = (await res.json()) as { choices?: { message?: { content?: string } }[] };
-      const content = json.choices?.[0]?.message?.content;
-      if (!content) return fallback(data);
-      const parsed = JSON.parse(content) as Record<string, unknown>;
-      const arr = (v: unknown) => (Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : []);
+      const json = await response.json();
+      let rawText: string = json.choices?.[0]?.message?.content ?? "";
+
+      // Strip Markdown code fence blocks if returned by Llama
+      rawText = rawText.trim();
+      if (rawText.startsWith("```")) {
+        rawText = rawText.replace(/^```[a-z]*\n?/, "").replace(/\n?```$/, "").trim();
+      }
+
+      const parsed = JSON.parse(rawText);
       return {
-        executive_summary: typeof parsed["executive_summary"] === "string" ? parsed["executive_summary"] : fallback(data).executive_summary,
-        top_loss: typeof parsed["top_loss"] === "string" ? parsed["top_loss"] : fallback(data).top_loss,
-        root_causes: arr(parsed["root_causes"]),
-        insights: arr(parsed["insights"]),
-        recommendations: arr(parsed["recommendations"]),
-        priority_actions: arr(parsed["priority_actions"]),
+        executive_summary: parsed.executive_summary ?? data.narrative,
+        top_loss: parsed.top_loss ?? "",
+        root_causes: parsed.root_causes ?? [],
+        insights: parsed.insights ?? [],
+        recommendations: parsed.recommendations ?? [],
+        priority_actions: parsed.priority_actions ?? [],
         source: "ai" as const,
       };
     } catch (err) {
       console.error("AI insight generation failed", err);
-      return fallback(data);
+      return fallback(data, "AI parsing failed; showing deterministic analysis.");
     }
   });

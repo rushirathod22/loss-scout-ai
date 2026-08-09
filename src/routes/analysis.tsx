@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Loader2, Check, Sparkles } from "lucide-react";
+import { Loader2, Check, Sparkles, AlertCircle } from "lucide-react";
 import { AppShell } from "@/components/losscope/AppShell";
 import { NoData } from "@/components/losscope/ui";
 import { inr } from "@/lib/losscope/engine";
@@ -14,10 +14,10 @@ export const Route = createFileRoute("/analysis")({
       {
         name: "description",
         content:
-          "Losscope validates your operational data, runs six loss detectors and reveals the hidden monthly loss with evidence and confidence.",
+          "Losscope validates operational data and classifies findings across directly measured losses, estimated operational costs, capital at risk, and revenue exposure.",
       },
       { property: "og:title", content: "Running Analysis — Losscope AI" },
-      { property: "og:description", content: "Six deterministic detectors, then AI reasoning over the findings." },
+      { property: "og:description", content: "Deterministic analysis with 6-field auditable evidence standards." },
     ],
   }),
   component: AnalysisPage,
@@ -26,10 +26,10 @@ export const Route = createFileRoute("/analysis")({
 const STAGES = [
   "Validating columns and dates",
   "Understanding your business",
-  "Finding patterns across 30 days",
+  "Finding patterns across period transactions",
   "Investigating anomalies",
-  "Calculating potential losses",
-  "Preparing recommendations",
+  "Classifying financial impact into distinct categories",
+  "Preparing evidence-backed recommendations",
 ];
 
 function AnalysisPage() {
@@ -84,6 +84,7 @@ function AnalysisPage() {
   }
 
   const done = stage >= STAGES.length;
+  const combinedCost = result.totalDirectlyMeasured + result.totalEstimatedOperationalCost;
 
   return (
     <AppShell>
@@ -112,28 +113,95 @@ function AnalysisPage() {
 
         {done ? (
           <div className="panel rise mt-6 p-8 text-center">
-            <p className="text-xs tracking-widest text-muted-foreground uppercase">We found</p>
-            <div className="num mt-2 font-display text-5xl font-semibold text-loss sm:text-6xl">
-              {inr(result.totalLoss)}/month
-            </div>
-            <p className="mt-2 text-muted-foreground">
-              Across {result.losses.length} hidden loss patterns · {result.confidence}% confidence
+            <p className="text-xs tracking-widest text-muted-foreground uppercase">Analysis Summary</p>
+            <h2 className="mt-2 font-display text-3xl font-bold sm:text-4xl text-foreground">
+              Financial Impact Overview
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Based on {result.dayCount} days · {result.rowCount} transactions · {result.confidence}% weighted confidence
             </p>
 
-            <div className="mt-6 space-y-2 text-left">
-              {result.losses.map((l, i) => (
-                <div
-                  key={l.id}
-                  className="rise flex items-center justify-between rounded-lg bg-surface px-4 py-3"
-                  style={{ animationDelay: `${i * 110}ms` }}
-                >
-                  <span className="flex items-center gap-3 text-sm">
-                    <span className="num text-xs text-muted-foreground">#{i + 1}</span>
-                    {l.category}
-                  </span>
-                  <span className="num text-sm font-semibold text-loss">{inr(l.estimated_loss)}</span>
+            {/* Combined Measured + Estimated Headline */}
+            <div className="mt-6 rounded-xl border border-primary/30 bg-primary/5 p-5 text-center">
+              <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Combined Measured + Estimated Cost
+              </div>
+              <div className="num mt-1 font-display text-4xl font-bold text-loss">
+                {inr(combinedCost)}
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Direct Waste ({inr(result.totalDirectlyMeasured)}) + Estimated Operational Cost ({inr(result.totalEstimatedOperationalCost)})
+              </p>
+            </div>
+
+            {/* Clean 4-Part Financial Impact Overview Layout */}
+            <div className="mt-6 grid gap-3 text-left">
+              {/* 🔴 DIRECTLY MEASURED */}
+              <div className="flex items-center justify-between rounded-lg bg-surface border border-rose-500/20 p-4">
+                <div>
+                  <div className="flex items-center gap-2 font-semibold text-rose-500 text-sm">
+                    🔴 DIRECTLY MEASURED LOSS
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    Confirmed direct waste loss from recorded inventory write-offs
+                  </div>
                 </div>
-              ))}
+                <div className="num font-display text-xl font-semibold text-rose-500">
+                  {inr(result.totalDirectlyMeasured)}
+                </div>
+              </div>
+
+              {/* 🟡 ESTIMATED OPERATIONAL COST */}
+              <div className="flex items-center justify-between rounded-lg bg-surface border border-amber-500/20 p-4">
+                <div>
+                  <div className="flex items-center gap-2 font-semibold text-amber-500 text-sm">
+                    🟡 ESTIMATED OPERATIONAL COST
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    Delivery inefficiency ({inr(result.totalDeliveryInefficiency)}) + Late payment financing ({inr(result.totalCashFlowRisk)})
+                  </div>
+                </div>
+                <div className="num font-display text-xl font-semibold text-amber-500">
+                  {inr(result.totalEstimatedOperationalCost)}
+                </div>
+              </div>
+
+              {/* 🟠 CAPITAL AT RISK */}
+              <div className="flex items-center justify-between rounded-lg bg-surface border border-orange-500/20 p-4">
+                <div>
+                  <div className="flex items-center gap-2 font-semibold text-orange-500 text-sm">
+                    🟠 CAPITAL AT RISK
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    Value of unsold inventory currently on hand (not a confirmed loss)
+                  </div>
+                </div>
+                <div className="num font-display text-xl font-semibold text-orange-500">
+                  {inr(result.totalCapitalAtRisk)}
+                </div>
+              </div>
+
+              {/* 🔵 REVENUE EXPOSURE */}
+              <div className="flex items-center justify-between rounded-lg bg-surface border border-blue-500/20 p-4">
+                <div>
+                  <div className="flex items-center gap-2 font-semibold text-blue-500 text-sm">
+                    🔵 REVENUE EXPOSURE
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    Estimated revenue exposure from declining demand trend (not a confirmed loss)
+                  </div>
+                </div>
+                <div className="num font-display text-xl font-semibold text-blue-500">
+                  {inr(result.totalDemandExposure)}
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 flex items-center gap-2 rounded-lg bg-accent/40 px-4 py-2.5 text-xs text-muted-foreground text-left">
+              <AlertCircle className="size-4 shrink-0 text-primary" />
+              <span>
+                Capital at risk and revenue exposure are intentionally excluded from this total to avoid double counting.
+              </span>
             </div>
 
             <div className="mt-6 rounded-xl border border-border bg-surface p-4 text-left">

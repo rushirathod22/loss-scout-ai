@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
-import { ArrowLeft, Lightbulb, Sparkles, Target } from "lucide-react";
+import { ArrowLeft, Lightbulb, Sparkles, Target, Calculator } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { AppShell } from "@/components/losscope/AppShell";
 import { ConfidenceMeter, EvidenceList, NoData, SeverityBadge } from "@/components/losscope/ui";
@@ -13,10 +13,10 @@ export const Route = createFileRoute("/losses/$lossId")({
       {
         name: "description",
         content:
-          "Investigate a single detected loss: the problem, why it happens, the supporting evidence, root cause and estimated potential recovery.",
+          "Investigate a single detected pattern: 6-field auditable standards, formula, root cause, evidence, and potential recovery.",
       },
       { property: "og:title", content: "Loss Investigation — Losscope AI" },
-      { property: "og:description", content: "Problem, evidence, root cause, recommended action and recovery." },
+      { property: "og:description", content: "Problem, formula, evidence, root cause, recommended action and recovery." },
     ],
   }),
   component: LossDetail,
@@ -30,7 +30,7 @@ function LossDetail() {
   if (!result || !loss) {
     return (
       <AppShell>
-        <NoData message="That loss isn't in the current analysis." />
+        <NoData message="That finding isn't in the current analysis." />
       </AppShell>
     );
   }
@@ -57,7 +57,38 @@ function LossDetail() {
           </div>
           <div className="text-right">
             <div className="num font-display text-3xl font-semibold text-loss">{inr(loss.estimated_loss)}</div>
-            <div className="text-xs text-muted-foreground">estimated loss {loss.period}</div>
+            <div className="text-xs text-muted-foreground">{loss.period}</div>
+          </div>
+        </div>
+
+        {/* 6-Field Standard Auditable Block */}
+        <div className="mt-6 rounded-xl border border-border bg-surface p-4 text-xs space-y-2">
+          <div className="flex items-center gap-2 font-semibold text-muted-foreground uppercase tracking-wide">
+            <Calculator className="size-4 text-primary" /> Auditable Calculation Standard
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+            <div>
+              <span className="font-semibold text-muted-foreground">CLASSIFICATION TYPE: </span>
+              <span className="font-bold text-foreground">{loss.lossType}</span>
+            </div>
+            <div>
+              <span className="font-semibold text-muted-foreground">ESTIMATED IMPACT: </span>
+              <span className="font-bold text-loss">{inr(loss.estimated_loss)}</span>
+            </div>
+            <div>
+              <span className="font-semibold text-muted-foreground">RAW OBSERVED VALUE: </span>
+              <span className="font-medium text-foreground">{loss.raw_value_text}</span>
+            </div>
+            <div>
+              <span className="font-semibold text-muted-foreground">CONFIDENCE SCORE: </span>
+              <span className="font-bold text-foreground">{loss.confidence}%</span>
+            </div>
+          </div>
+          <div className="pt-1">
+            <span className="font-semibold text-muted-foreground">EXACT FORMULA: </span>
+            <code className="rounded bg-muted px-2 py-1 text-xs font-mono text-foreground inline-block mt-1">
+              {loss.formulaText}
+            </code>
           </div>
         </div>
       </div>
@@ -109,12 +140,12 @@ function LossDetail() {
             </h2>
             <dl className="mt-4 space-y-2 text-sm">
               <div className="flex justify-between">
-                <dt className="text-muted-foreground">Current estimated loss</dt>
-                <dd className="num font-semibold text-loss">{inr(loss.estimated_loss)}/mo</dd>
+                <dt className="text-muted-foreground">Current estimated impact</dt>
+                <dd className="num font-semibold text-loss">{inr(loss.estimated_loss)}</dd>
               </div>
               <div className="flex justify-between">
                 <dt className="text-muted-foreground">Estimated potential recovery</dt>
-                <dd className="num font-semibold text-gain">{inr(loss.potential_saving)}/mo</dd>
+                <dd className="num font-semibold text-gain">{inr(loss.potential_saving)}</dd>
               </div>
               <div className="flex justify-between">
                 <dt className="text-muted-foreground">Recovery rate</dt>
