@@ -137,7 +137,7 @@ export function generateUrbanBiteData(endDateISO = "2026-08-08"): Row[] {
       const waste = Math.round(surplus * p.wasteRate * spoilBoost * 10) / 10;
       const inventory_remaining = Math.max(0, Math.round(surplus - waste));
 
-      const sup = SUPPLIER_DELIVERY[p.supplier];
+      const sup = SUPPLIER_DELIVERY[p.supplier] ?? { perDrop: 250, dropsPerWeek: 3 };
       const delivers = rand() < sup.dropsPerWeek / 7;
       const delivery_cost = delivers ? Math.round(sup.perDrop * (0.9 + rand() * 0.25)) : 0;
 
@@ -262,7 +262,7 @@ function num(raw: string): number {
 export function parseCsv(text: string): Row[] {
   const lines = text.split(/\r?\n/).filter((l) => l.trim() !== "");
   if (lines.length < 2) throw new CsvError("The file looks empty — no data rows were found.");
-  const header = splitLine(lines[0]).map((h) => h.toLowerCase().replace(/\s+/g, "_"));
+  const header = splitLine(lines[0] ?? "").map((h) => h.toLowerCase().replace(/\s+/g, "_"));
   const missing = REQUIRED_COLUMNS.filter((c) => !header.includes(c));
   if (missing.length) {
     throw new CsvError(
@@ -277,7 +277,7 @@ export function parseCsv(text: string): Row[] {
 
   const rows: Row[] = [];
   for (let i = 1; i < lines.length; i++) {
-    const cells = splitLine(lines[i]);
+    const cells = splitLine(lines[i] ?? "");
     const product = get(cells, "product");
     if (!product) continue;
     const status = get(cells, "payment_status").toLowerCase();
