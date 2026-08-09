@@ -106,12 +106,12 @@ export const generateInsights = createServerFn({ method: "POST" })
       const parsed = JSON.parse(content) as Record<string, unknown>;
       const arr = (v: unknown) => (Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : []);
       return {
-        executive_summary: typeof parsed.executive_summary === "string" ? parsed.executive_summary : fallback(data).executive_summary,
-        top_loss: typeof parsed.top_loss === "string" ? parsed.top_loss : fallback(data).top_loss,
-        root_causes: arr(parsed.root_causes),
-        insights: arr(parsed.insights),
-        recommendations: arr(parsed.recommendations),
-        priority_actions: arr(parsed.priority_actions),
+        executive_summary: typeof parsed["executive_summary"] === "string" ? parsed["executive_summary"] : fallback(data).executive_summary,
+        top_loss: typeof parsed["top_loss"] === "string" ? parsed["top_loss"] : fallback(data).top_loss,
+        root_causes: arr(parsed["root_causes"]),
+        insights: arr(parsed["insights"]),
+        recommendations: arr(parsed["recommendations"]),
+        priority_actions: arr(parsed["priority_actions"]),
         source: "ai" as const,
       };
     } catch (err) {
