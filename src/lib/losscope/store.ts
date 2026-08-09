@@ -24,9 +24,40 @@ let state: State = {
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((l) => l());
 
+const KEY = "losscope:v1";
+
 function set(patch: Partial<State>) {
   state = { ...state, ...patch };
+  if (typeof window !== "undefined" && state.rows) {
+    try {
+      window.sessionStorage.setItem(
+        KEY,
+        JSON.stringify({ rows: state.rows, businessName: state.businessName, isDemo: state.isDemo }),
+      );
+    } catch {
+      /* storage unavailable — in-memory only */
+    }
+  }
   emit();
+}
+
+/** Rehydrate after a page reload so a refreshed dashboard keeps its analysis. */
+export function hydrateLosscope() {
+  if (typeof window === "undefined" || state.rows) return;
+  try {
+    const raw = window.sessionStorage.getItem(KEY);
+    if (!raw) return;
+    const saved = JSON.parse(raw) as { rows: Row[]; businessName: string; isDemo: boolean };
+    if (!saved?.rows?.length) return;
+    set({
+      rows: saved.rows,
+      businessName: saved.businessName,
+      isDemo: saved.isDemo,
+      result: analyze(saved.rows, saved.businessName),
+    });
+  } catch {
+    /* ignore corrupt session data */
+  }
 }
 
 export const losscopeStore = {

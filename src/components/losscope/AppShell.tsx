@@ -1,7 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Scan, LayoutDashboard, Activity, ListChecks, FileText, Upload } from "lucide-react";
-import type { ReactNode } from "react";
-import { useLosscope } from "@/lib/losscope/store";
+import { useEffect, type ReactNode } from "react";
+import { hydrateLosscope, useLosscope } from "@/lib/losscope/store";
 
 const NAV = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -13,6 +13,10 @@ const NAV = [
 export function AppShell({ children }: { children: ReactNode }) {
   const { businessName, result } = useLosscope();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  useEffect(() => {
+    hydrateLosscope();
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
