@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AnalysisRouteImport } from './routes/analysis'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as UploadRouteImport } from './routes/upload'
+import { Route as LossesLossIdRouteImport } from './routes/losses.$lossId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,35 +30,59 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UploadRoute = UploadRouteImport.update({
+  id: '/upload',
+  path: '/upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LossesLossIdRoute = LossesLossIdRouteImport.update({
+  id: '/losses/$lossId',
+  path: '/losses/$lossId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/analysis': typeof AnalysisRoute
   '/dashboard': typeof DashboardRoute
+  '/upload': typeof UploadRoute
+  '/losses/$lossId': typeof LossesLossIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/analysis': typeof AnalysisRoute
   '/dashboard': typeof DashboardRoute
+  '/upload': typeof UploadRoute
+  '/losses/$lossId': typeof LossesLossIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/analysis': typeof AnalysisRoute
   '/dashboard': typeof DashboardRoute
+  '/upload': typeof UploadRoute
+  '/losses/$lossId': typeof LossesLossIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/analysis' | '/dashboard'
+  fullPaths: '/' | '/analysis' | '/dashboard' | '/upload' | '/losses/$lossId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/analysis' | '/dashboard'
-  id: '__root__' | '/' | '/analysis' | '/dashboard'
+  to: '/' | '/analysis' | '/dashboard' | '/upload' | '/losses/$lossId'
+  id:
+    | '__root__'
+    | '/'
+    | '/analysis'
+    | '/dashboard'
+    | '/upload'
+    | '/losses/$lossId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AnalysisRoute: typeof AnalysisRoute
   DashboardRoute: typeof DashboardRoute
+  UploadRoute: typeof UploadRoute
+  LossesLossIdRoute: typeof LossesLossIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +108,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/upload': {
+      id: '/upload'
+      path: '/upload'
+      fullPath: '/upload'
+      preLoaderRoute: typeof UploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/losses/$lossId': {
+      id: '/losses/$lossId'
+      path: '/losses/$lossId'
+      fullPath: '/losses/$lossId'
+      preLoaderRoute: typeof LossesLossIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -89,6 +129,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnalysisRoute: AnalysisRoute,
   DashboardRoute: DashboardRoute,
+  UploadRoute: UploadRoute,
+  LossesLossIdRoute: LossesLossIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
