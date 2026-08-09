@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AnalysisRouteImport } from './routes/analysis'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as RecommendationsRouteImport } from './routes/recommendations'
+import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as UploadRouteImport } from './routes/upload'
 import { Route as LossesLossIdRouteImport } from './routes/losses.$lossId'
 
@@ -30,6 +32,16 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RecommendationsRoute = RecommendationsRouteImport.update({
+  id: '/recommendations',
+  path: '/recommendations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReportsRoute = ReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UploadRoute = UploadRouteImport.update({
   id: '/upload',
   path: '/upload',
@@ -45,6 +57,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/analysis': typeof AnalysisRoute
   '/dashboard': typeof DashboardRoute
+  '/recommendations': typeof RecommendationsRoute
+  '/reports': typeof ReportsRoute
   '/upload': typeof UploadRoute
   '/losses/$lossId': typeof LossesLossIdRoute
 }
@@ -52,6 +66,8 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/analysis': typeof AnalysisRoute
   '/dashboard': typeof DashboardRoute
+  '/recommendations': typeof RecommendationsRoute
+  '/reports': typeof ReportsRoute
   '/upload': typeof UploadRoute
   '/losses/$lossId': typeof LossesLossIdRoute
 }
@@ -60,19 +76,37 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/analysis': typeof AnalysisRoute
   '/dashboard': typeof DashboardRoute
+  '/recommendations': typeof RecommendationsRoute
+  '/reports': typeof ReportsRoute
   '/upload': typeof UploadRoute
   '/losses/$lossId': typeof LossesLossIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/analysis' | '/dashboard' | '/upload' | '/losses/$lossId'
+  fullPaths:
+    | '/'
+    | '/analysis'
+    | '/dashboard'
+    | '/recommendations'
+    | '/reports'
+    | '/upload'
+    | '/losses/$lossId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/analysis' | '/dashboard' | '/upload' | '/losses/$lossId'
+  to:
+    | '/'
+    | '/analysis'
+    | '/dashboard'
+    | '/recommendations'
+    | '/reports'
+    | '/upload'
+    | '/losses/$lossId'
   id:
     | '__root__'
     | '/'
     | '/analysis'
     | '/dashboard'
+    | '/recommendations'
+    | '/reports'
     | '/upload'
     | '/losses/$lossId'
   fileRoutesById: FileRoutesById
@@ -81,6 +115,8 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AnalysisRoute: typeof AnalysisRoute
   DashboardRoute: typeof DashboardRoute
+  RecommendationsRoute: typeof RecommendationsRoute
+  ReportsRoute: typeof ReportsRoute
   UploadRoute: typeof UploadRoute
   LossesLossIdRoute: typeof LossesLossIdRoute
 }
@@ -108,6 +144,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/recommendations': {
+      id: '/recommendations'
+      path: '/recommendations'
+      fullPath: '/recommendations'
+      preLoaderRoute: typeof RecommendationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reports': {
+      id: '/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof ReportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/upload': {
       id: '/upload'
       path: '/upload'
@@ -129,6 +179,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnalysisRoute: AnalysisRoute,
   DashboardRoute: DashboardRoute,
+  RecommendationsRoute: RecommendationsRoute,
+  ReportsRoute: ReportsRoute,
   UploadRoute: UploadRoute,
   LossesLossIdRoute: LossesLossIdRoute,
 }
