@@ -5,6 +5,9 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 [![Status](https://img.shields.io/badge/Status-Hackathon%20MVP%20Ready-brightgreen?style=for-the-badge)](http://localhost:8080)
 
+## 🎥 Demo
+[![Watch the 2-minute demo](https://img.youtube.com/vi/kTuKihQf1K0/0.jpg)](https://www.youtube.com/watch?v=kTuKihQf1K0)
+
 ---
 
 ## 🎯 The Core Problem
