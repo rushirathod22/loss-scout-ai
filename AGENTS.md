@@ -1,10 +1,5 @@
-<!-- LOVABLE:BEGIN -->
-> [!IMPORTANT]
-> This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
-> published git history — force pushing, or rebasing/amending/squashing commits
-> that are already pushed — as it rewrites history on Lovable's side and the
-> user will likely lose their project history.
->
-> Commits you push to the connected branch sync back to Lovable and show up in
-> the editor, so keep the branch in a working state.
-<!-- LOVABLE:END -->
+# Losscope AI — Project Guidelines
+
+- Maintain clean 5-bucket financial classification (Directly Measured Loss, Estimated Operational Cost, Capital at Risk, Revenue Exposure, Cash-flow Risk).
+- Ensure all findings follow 6-field auditable AI standard: `TYPE`, `RAW VALUE`, `ESTIMATED IMPACT`, `FORMULA`, `CONFIDENCE`, `EVIDENCE`.
+- Keep calculations deterministic in `engine.ts` with Groq LLaMA 3.1 narrative reasoning in `ai.functions.ts`.
