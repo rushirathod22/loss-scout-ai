@@ -105,7 +105,7 @@ function Landing() {
                 icon={<TrendingDown className="size-4" />}
               />
               <HeroStat label="Losses detected" value={`${preview.losses.length}`} tone="text-foreground" />
-              <HeroStat label="Potential recovery" value={`${inr(preview.totalRecovery)}/mo`} tone="text-gain" />
+              <HeroStat label="Recovery opportunities" value="4 identified" tone="text-gain" />
               <HeroStat
                 label="Confidence"
                 value={`${preview.confidence}%`}

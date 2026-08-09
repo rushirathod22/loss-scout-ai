@@ -149,7 +149,7 @@ function Dashboard() {
                 <dd className="num font-semibold text-gain">{inr(result.potentialWasteRecovery)}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-muted-foreground">Estimated Operational Cost Reduction</dt>
+                <dt className="text-muted-foreground">Operational Cost Reduction</dt>
                 <dd className="num font-semibold text-gain">{inr(result.potentialOperationalCostReduction)}</dd>
               </div>
               <div className="flex justify-between">
@@ -157,7 +157,7 @@ function Dashboard() {
                 <dd className="num font-semibold text-blue-500">{inr(result.potentialRevenueRecovery)}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-muted-foreground">Inventory Optimization Opportunity</dt>
+                <dt className="text-muted-foreground">Inventory Optimization</dt>
                 <dd className="num font-semibold text-orange-500">{inr(result.potentialInventoryOptimization)}</dd>
               </div>
             </dl>

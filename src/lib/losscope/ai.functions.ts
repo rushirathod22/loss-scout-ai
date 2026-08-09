@@ -55,7 +55,7 @@ function fallback(f: Findings, note?: string) {
     recommendations: f.losses.map((l) => l.recommendation),
     priority_actions: f.losses
       .slice(0, 3)
-      .map((l, i) => `${i + 1}. ${l.recommendation} (estimated potential recovery ₹${Math.round(l.potential_saving).toLocaleString("en-IN")}/month)`),
+      .map((l, i) => `${i + 1}. ${l.recommendation} (estimated potential recovery ₹${Math.round(l.potential_saving).toLocaleString("en-IN")})`),
     source: "fallback" as const,
     note: note ?? "Generated from the deterministic detector output — the AI narrator was unavailable.",
   };

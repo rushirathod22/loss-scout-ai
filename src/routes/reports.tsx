@@ -56,10 +56,16 @@ function Reports() {
             {ai?.executive_summary ?? result.narrative}
           </p>
           <div className="mt-4 grid gap-4 sm:grid-cols-4">
-            <Stat label="Total estimated loss" value={`${inr(result.totalLoss)}/mo`} cls="text-loss" />
-            <Stat label="Potential recovery" value={`${inr(result.totalRecovery)}/mo`} cls="text-gain" />
+            <Stat label="Combined measured + est. cost" value={inr(result.totalDirectlyMeasured + result.totalEstimatedOperationalCost)} cls="text-loss" />
             <Stat label="Loss score" value={`${result.lossScore}/100`} cls="text-foreground" />
             <Stat label="Confidence" value={`${result.confidence}%`} cls="text-primary" />
+            <Stat label="Capital at risk" value={inr(result.totalCapitalAtRisk)} cls="text-orange-500" />
+          </div>
+          <div className="mt-3 grid gap-3 sm:grid-cols-4">
+            <Stat label="Waste recovery est." value={inr(result.potentialWasteRecovery)} cls="text-gain" />
+            <Stat label="Operational cost reduction" value={inr(result.potentialOperationalCostReduction)} cls="text-gain" />
+            <Stat label="Revenue recovery est." value={inr(result.potentialRevenueRecovery)} cls="text-blue-500" />
+            <Stat label="Inventory optimization" value={inr(result.potentialInventoryOptimization)} cls="text-orange-500" />
           </div>
         </section>
 

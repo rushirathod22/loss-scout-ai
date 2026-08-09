@@ -197,16 +197,16 @@ export function analyze(rows: Row[], businessName = "UrbanBite Cafe"): AnalysisR
         { label: "Waste events", value: `${wasteRows.length} rows` },
         top
           ? {
-              label: `Top contributor: ${top.product}`,
-              value: `${Math.round((top.wasteCost / totalDirectWaste) * 100)}% of waste`,
-              detail: `${inr(top.wasteCost)} · ${Math.round(top.wasteQty)} units wasted`,
-            }
+            label: `Top contributor: ${top.product}`,
+            value: `${Math.round((top.wasteCost / totalDirectWaste) * 100)}% of waste`,
+            detail: `${inr(top.wasteCost)} · ${Math.round(top.wasteQty)} units wasted`,
+          }
           : { label: "Top product", value: "n/a" },
         worstDow.length
           ? {
-              label: `Peak waste days: ${worstDow.map((w) => w[0]).join(" / ")}`,
-              value: `${Math.round(worstDowShare * 100)}% of total waste cost`,
-            }
+            label: `Peak waste days: ${worstDow.map((w) => w[0]).join(" / ")}`,
+            value: `${Math.round(worstDowShare * 100)}% of total waste cost`,
+          }
           : { label: "Day concentration", value: "none" },
       ],
       recommendation: top
@@ -299,10 +299,10 @@ export function analyze(rows: Row[], businessName = "UrbanBite Cafe"): AnalysisR
         { label: "Overstocked lines", value: `${overstockedProducts.length}` },
         top
           ? {
-              label: `Top idle stock: ${top.product}`,
-              value: `${inr(top.idleValue)} (${Math.round(top.excessUnits)} units)`,
-              detail: `~${top.daysToSell === Infinity ? "∞" : Math.round(top.daysToSell)} days to clear at current pace`,
-            }
+            label: `Top idle stock: ${top.product}`,
+            value: `${inr(top.idleValue)} (${Math.round(top.excessUnits)} units)`,
+            detail: `~${top.daysToSell === Infinity ? "∞" : Math.round(top.daysToSell)} days to clear at current pace`,
+          }
           : { label: "Top product", value: "n/a" },
       ],
       recommendation: "Align order quantities to trailing 7-day sales plus 10% buffer.",
@@ -534,14 +534,14 @@ export function analyze(rows: Row[], businessName = "UrbanBite Cafe"): AnalysisR
   const totalImpactWeight = losses.reduce((s, l) => s + l.estimated_loss, 0);
   const confidence = losses.length && totalImpactWeight > 0
     ? Math.round(
-        Math.max(
-          0,
-          Math.min(
-            100,
-            losses.reduce((s, l) => s + l.confidence * l.estimated_loss, 0) / totalImpactWeight
-          )
+      Math.max(
+        0,
+        Math.min(
+          100,
+          losses.reduce((s, l) => s + l.confidence * l.estimated_loss, 0) / totalImpactWeight
         )
       )
+    )
     : 73;
 
   // Clamped component score breakdown and Loss Score calculation
@@ -641,9 +641,8 @@ export function analyze(rows: Row[], businessName = "UrbanBite Cafe"): AnalysisR
     }))
     .filter((x) => x.days > 0);
 
-  // Stronger Analyst Narrative (user-approved structure)
-  const demandProduct = worstTrend?.product ?? "declining products";
-  const narrative = `Losscope identified ${inr(totalLoss)} in combined measured and estimated operational cost across ${businessName}'s ${dayCount}-day dataset. The largest confirmed impact is ${inr(totalDirectWaste)} in inventory waste, while delivery inefficiency and delayed payments contribute an estimated ${inr(totalEstimatedOperationalCost)} in additional operational cost. Separately, Losscope identified ${inr(totalCapitalAtRisk)} in inventory capital at risk and approximately ${inr(totalDemandExposure)} in revenue exposure from declining ${demandProduct} demand.`;
+  // Exact Analyst Narrative requested by user
+  const narrative = `Losscope identified ${inr(totalLoss)} in combined measured and estimated operational cost across ${businessName}'s ${dayCount}-day dataset. This includes ${inr(totalDirectWaste)} in confirmed inventory waste, ${inr(totalDeliveryInefficiency)} in estimated delivery inefficiency, and ${inr(totalCashFlowRisk)} in estimated late-payment financing cost. Capital at risk (${inr(totalCapitalAtRisk)}) and revenue exposure (${inr(totalDemandExposure)}) are reported separately.`;
 
   return {
     businessName,
